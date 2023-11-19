@@ -23,4 +23,15 @@ public class ReceiveObject
 		//catch (ClassNotFoundException e) {e.printStackTrace();}
 		return result;
 	}
+	
+	public static Object withSocket_throws(Socket socket) throws IOException
+	{
+		InputStream is = null;
+		ObjectInputStream ois = null;
+		Object result = null;
+		is = socket.getInputStream();
+		ois = new ObjectInputStream(is);
+		try {result = ois.readObject();} catch(ClassNotFoundException e) {}
+		return result;
+	}
 }

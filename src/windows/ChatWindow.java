@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.io.IOException;
 import java.net.Socket;
 
 import javax.swing.JButton;
@@ -15,6 +16,7 @@ import javax.swing.JTextField;
 import Client.Start;
 import form.ChatForm;
 import socket.SendObject;
+import swing.ShowMessage;
 import socket.ReceiveObject;
 
 public class ChatWindow extends JFrame 
@@ -144,7 +146,12 @@ public class ChatWindow extends JFrame
 		{
 			while(true)
 			{
-				received = (ChatForm) ReceiveObject.withSocket(socket);
+				try {received = (ChatForm) ReceiveObject.withSocket_throws(socket);}
+				catch (IOException e) 
+				{
+					ShowMessage.warning("오류", "서버와의 접속이 끊어졌습니다.");
+					// + 로그아웃 루틴 
+				}
 				if (received.getRoomId().equals(cw.chatRoomId))
 				{
 					cw.chatArea.append("["+received.getId()+"@"+received.getNickName()+"] :");
