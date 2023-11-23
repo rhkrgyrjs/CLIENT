@@ -229,7 +229,8 @@ public class ZipcodeWindow extends JFrame
 		@Override
 		public void valueChanged(ListSelectionEvent e) 
 		{
-			ShowMessage.information("우편번호 선택", "선택한 우편번호 : " + zw.address[zw.resultList.getSelectedIndex()][0]);
+			try {ShowMessage.information("우편번호 선택", "선택한 우편번호 : " + zw.address[zw.resultList.getSelectedIndex()][0]);}
+			catch (ArrayIndexOutOfBoundsException a) {}
 		}
 		
 	}

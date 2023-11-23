@@ -49,4 +49,17 @@ public class RegexCheck
         Matcher matcher = pattern.matcher(phoneNum);
         return matcher.matches();
 	}
+	
+	public static boolean isAddress(String address)
+	{
+		// 비밀번호 : 문자 하나 이상, 숫자 하나 이상, 특수문자 하나 이상. 8~20 자 
+		if (address.getBytes().length < 61 || address == null)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
 }

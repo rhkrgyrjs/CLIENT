@@ -44,12 +44,14 @@ public class SignupWindow extends JFrame
 	private JLabel pwCheckLabel = null;
 	private JLabel emailLabel = null;
 	private JLabel phoneNumLabel = null;
+	private JLabel addressLabel = null;
 	private JHintTextField idInput = null;
 	private JHintTextField nickNameInput = null;
 	private JHintTextField pwInput = null;
 	private JHintTextField pwCheckInput = null;
 	private JHintTextField emailInput = null;
 	private JHintTextField phoneNumInput = null;
+	private JTextField addressInput = null;
 	private JButton idDupCheckButton = null;
 	private JButton profilPicButton = null;
 	JButton zipcodeButton = null;
@@ -70,6 +72,7 @@ public class SignupWindow extends JFrame
 	private boolean phoneNumChecked = false;
 	private boolean profilePicChecked = false;
 	boolean postcodeChecked = false;
+	private boolean addresschecked = true;
 	
 	// 전환할 창 지정 
 	private LoginWindow loginWindow = null;
@@ -87,6 +90,7 @@ public class SignupWindow extends JFrame
 		this.phoneNumChecked = false;
 		this.profilePicChecked = false;
 		this.postcodeChecked = false;
+		this.addresschecked = true;
 		img = new ImageIcon("img/profile.png");
 		this.idInput.setText("8~16자, 영어 + 숫자");
 	    this.idInput.setFont(lostFont);  
@@ -106,6 +110,7 @@ public class SignupWindow extends JFrame
 		this.phoneNumInput.setText("예) 010-0000-0000");
 	    this.phoneNumInput.setFont(lostFont);  
 	    this.phoneNumInput.setForeground(Color.GRAY); 
+	    this.addressInput.setText("");
 		this.profilPicButton.setIcon(img);
 		this.zipcodeButton.setText("우편번호 찾기");
 	    this.idInput.setEnabled(true);
@@ -117,7 +122,7 @@ public class SignupWindow extends JFrame
 		// 기본적인 창 설정 
 		setTitle("회원가입");
 		setResizable(false);
-		setSize(375, 260);
+		setSize(375, 290);
 		setLayout(null);
 		setLocationRelativeTo(null);
 		
@@ -135,12 +140,14 @@ public class SignupWindow extends JFrame
 		pwCheckLabel = new JLabel("PW 확인");
 		emailLabel = new JLabel("이메일");
 		phoneNumLabel = new JLabel("전화번호");
+		addressLabel = new JLabel("상세주소");
 		idInput = new JHintTextField("8~16자, 영어 + 숫자");
 		nickNameInput = new JHintTextField("8~16자, 한글/영어/숫자 허용");
 		pwInput = new JHintTextField("8~20자, 특수문자/대문자 포함");
 		pwCheckInput = new JHintTextField("패스워드 확인");
 		emailInput = new JHintTextField("예) user@example.com ");
 		phoneNumInput = new JHintTextField("예) 010-0000-0000");
+		addressInput = new JTextField();
 		idDupCheckButton = new JButton("중복체크");
 		profilPicButton = new JButton(img);
 		zipcodeButton = new JButton("우편번호 찾기");
@@ -155,17 +162,19 @@ public class SignupWindow extends JFrame
 		pwCheckLabel.setBounds(15, 105, 50, 20);
 		emailLabel.setBounds(15, 135, 50, 20);
 		phoneNumLabel.setBounds(15, 165, 50, 20);
+		addressLabel.setBounds(15, 195, 50, 20);
 		idInput.setBounds(70, 15, 145, 20);
 		nickNameInput.setBounds(70, 45, 200, 20);
 		pwInput.setBounds(70, 75, 200, 20);
 		pwCheckInput.setBounds(70, 105, 200, 20);
 		emailInput.setBounds(70, 135, 200, 20);
 		phoneNumInput.setBounds(70, 165, 200, 20);
-		profilPicButton.setBounds(280, 35, 80, 92);
-		zipcodeButton.setBounds(280, 130, 80, 20);
+		addressInput.setBounds(70, 195, 200, 20);
+		profilPicButton.setBounds(280, 50, 80, 92);
+		zipcodeButton.setBounds(280, 145, 80, 20);
 		idDupCheckButton.setBounds(215, 15, 50, 20);
-		confirmButton.setBounds(100, 200, 80, 25);
-		cancelButton.setBounds(200, 200, 80, 25);
+		confirmButton.setBounds(100, 230, 80, 25);
+		cancelButton.setBounds(200, 230, 80, 25);
 		
 		// 이벤트 처리 
 		idInput.setFocusTraversalKeysEnabled(false);
@@ -210,12 +219,14 @@ public class SignupWindow extends JFrame
 		add(pwCheckLabel);
 		add(emailLabel);
 		add(phoneNumLabel);
+		add(addressLabel);
 		add(idInput);
 		add(nickNameInput);
 		add(pwInput);
 		add(pwCheckInput);
 		add(emailInput);
 		add(phoneNumInput);
+		add(addressInput);
 		add(profilPicButton);
 		add(zipcodeButton);
 		add(idDupCheckButton);
@@ -236,7 +247,7 @@ public class SignupWindow extends JFrame
 		@Override
 		public void actionPerformed(ActionEvent e) 
 		{
-			if (sw.idDupChecked && sw.nickNameChecked && sw.passwordChecked && sw.emailChecked && sw.phoneNumChecked && sw.profilePicChecked &&sw.postcodeChecked)
+			if (sw.idDupChecked && sw.nickNameChecked && sw.passwordChecked && sw.emailChecked && sw.phoneNumChecked && sw.profilePicChecked &&sw.postcodeChecked && sw.addresschecked)
 			{	
 				// 회원가입 신청이 성공하면, 이미지 파일도 보낸다.
 				LoginRequestForm toSend = new LoginRequestForm();
@@ -248,6 +259,7 @@ public class SignupWindow extends JFrame
 				toSend.setPhonenumber(sw.phoneNumInput.getText());
 				toSend.setZipcode(sw.zipcodeButton.getText());
 				toSend.setPicBlob(imgBlob);
+				toSend.setAddress(sw.addressInput.getText());
 				
 				if (LoginRequest.toServer(toSend))
 				{
@@ -493,6 +505,44 @@ public class SignupWindow extends JFrame
 		public void keyReleased(KeyEvent e) 
 		{
 			phoneNumRegexCheck(sw.phoneNumInput.getText());
+		}
+	}
+	
+	class AddressLengthCheck implements KeyListener
+	{
+		SignupWindow sw = null;
+		AddressLengthCheck(SignupWindow sw) {this.sw = sw;}
+		
+		private void addressCheck(String address)
+		{
+			if (RegexCheck.isAddress(address))
+			{
+				// 주소 사용가능 
+				sw.addresschecked = true;
+			}
+			else
+			{
+				// 주소 사용불가능 
+				sw.addresschecked = false;
+			}
+		}
+		
+		@Override
+		public void keyTyped(KeyEvent e) 
+		{
+			addressCheck(sw.addressInput.getText());
+		}
+		
+		@Override
+		public void keyPressed(KeyEvent e) 
+		{
+			addressCheck(sw.addressInput.getText());
+		}
+		
+		@Override
+		public void keyReleased(KeyEvent e) 
+		{
+			addressCheck(sw.addressInput.getText());
 		}
 	}
 	
