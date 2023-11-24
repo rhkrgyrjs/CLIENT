@@ -108,7 +108,7 @@ public class ChatWindow extends JFrame
 	public void getConnection()
 	{
 		this.chatRoomId = "@ServerMain";
-		ChatForm toSend = new ChatForm(this.chatRoomId, Start.myId, Start.myNickname, "["+Start.myNickname+"] 님이 입장했습니다.");
+		ChatForm toSend = new ChatForm(this.chatRoomId, Start.myId, Start.myNickname, "["+Start.myNickname+"] 님이 접속했습니다.");
 		this.socket = SendObject.send_noSocketClose(CHAT_PORT, toSend);
 		ChatReceiveThread chatReceiveThread = new ChatReceiveThread(socket, this);
 		chatReceiveThread.start();

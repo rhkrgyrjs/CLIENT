@@ -59,6 +59,7 @@ public class LoginWindow extends JFrame
 		this.chatWindow.setLocation(this.lobbyWindow.getX() + this.lobbyWindow.getWidth(), this.lobbyWindow.getY());
 		this.chatWindow.getConnection();
 		this.chatWindow.setVisible(true);
+		this.lobbyWindow.refresh();
 		this.lobbyWindow.requestFocus();
 	}
 	

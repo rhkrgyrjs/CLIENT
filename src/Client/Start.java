@@ -19,6 +19,7 @@ public class Start
 		PwChangeWindow pwChangeWindow = PwChangeWindow.getInstance();
 		LobbyWindow lobbyWindow = LobbyWindow.getInstance();
 		ChatWindow chatWindow = ChatWindow.getInstance();
+		GameRoomWindow gameRoomWindow = GameRoomWindow.getInstance();
 		// GameWindow gameWindow = GameWindow.getInstance();
 		
 		// 창 전환 의존성 설정 
@@ -38,6 +39,7 @@ public class Start
 		pwChangeWindow.setLoginWindow(loginWindow);
 		
 		lobbyWindow.setLoginWindow(loginWindow);
+		lobbyWindow.setGameRoomWindow(gameRoomWindow);
 		// lobbyWindow.setGameWindow(gameWindow);
 		
 		// gameWindow.setLobbyWindow(lobbyWindow);
