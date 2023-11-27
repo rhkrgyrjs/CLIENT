@@ -52,7 +52,6 @@ public class ChatWindow extends JFrame
     SimpleAttributeSet right = null;
 	
 	private String chatRoomId = null;
-	private Socket socket = null;
 	
 	private ChatWindow()
 	{
@@ -108,9 +107,9 @@ public class ChatWindow extends JFrame
 	public void getConnection()
 	{
 		this.chatRoomId = "@ServerMain";
-		ChatForm toSend = new ChatForm(this.chatRoomId, Start.myId, Start.myNickname, "["+Start.myNickname+"] 님이 접속했습니다.");
-		this.socket = SendObject.send_noSocketClose(CHAT_PORT, toSend);
-		ChatReceiveThread chatReceiveThread = new ChatReceiveThread(socket, this);
+		ChatForm toSend = new ChatForm(1, this.chatRoomId, Start.myId, Start.myNickname, "["+Start.myNickname+"] 님이 접속했습니다.");
+		Start.connSocket = SendObject.send_noSocketClose(CHAT_PORT, toSend);
+		ReplyReceiveThread chatReceiveThread = new ReplyReceiveThread(Start.connSocket, this);
 		chatReceiveThread.start();
 	}
 	
@@ -128,8 +127,8 @@ public class ChatWindow extends JFrame
 		{
 			if (!cw.chatInput.getText().equals(""))
 			{
-				ChatForm toSend = new ChatForm(cw.chatRoomId, Start.myId, Start.myNickname, cw.chatInput.getText());
-				SendObject.withSocket(cw.socket, toSend);
+				ChatForm toSend = new ChatForm(1, cw.chatRoomId, Start.myId, Start.myNickname, cw.chatInput.getText());
+				SendObject.withSocket(Start.connSocket, toSend);
 			}
 			cw.chatInput.setText("");
 		}
@@ -154,12 +153,12 @@ public class ChatWindow extends JFrame
 		public void keyReleased(KeyEvent e) {}
 	}
 	
-	class ChatReceiveThread extends Thread
+	class ReplyReceiveThread extends Thread
 	{
 		Socket socket = null;
 		ChatWindow cw = null;
 		ChatForm received = null;
-		ChatReceiveThread(Socket socket, ChatWindow cw) 
+		ReplyReceiveThread(Socket socket, ChatWindow cw) 
 		{
 			this.socket = socket;
 			this.cw = cw;

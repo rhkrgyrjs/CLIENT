@@ -1,5 +1,7 @@
 package Client;
 
+import java.net.Socket;
+
 import windows.*;
 
 public class Start 
@@ -7,6 +9,8 @@ public class Start
 	// 내정보 저장
 	public static String myId = null;
 	public static String myNickname = null;
+	
+	public static Socket connSocket = null;
 		
 	public static void main(String[] args)
 	{
