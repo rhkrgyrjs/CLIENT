@@ -54,11 +54,13 @@ public class LobbyWindow extends JFrame
 	private GameRoomWindow gameRoomWindow = null;
 	private GameBoardWindow gameBoardWindow = null;
 	private ChatWindow chatWindow = null;
+	private UserInfoWindow userInfoWindow = null;
 	
 	public void setLoginWindow(LoginWindow lw) {this.loginWindow = lw;}
 	public void setGameRoomWindow(GameRoomWindow grw) {this.gameRoomWindow = grw;}
 	public void setGameBoardWindow(GameBoardWindow gbw) {this.gameBoardWindow = gbw;}
 	public void setChatWindow(ChatWindow cw) {this.chatWindow = cw;}
+	public void setUserInfoWindow(UserInfoWindow uifw) {this.userInfoWindow = uifw;}
 	
 	private String[] tableHeader = {"방 이름", "방장", "게임중 여부"};
 
@@ -179,42 +181,61 @@ public class LobbyWindow extends JFrame
     	{
             if (e.getClickCount() == 2) 
             {
-                int row = lbw.roomTable.rowAtPoint(e.getPoint());
+                int row = lbw.roomTable.rowAtPoint(e.getPoint()); 
+                int col = lbw.roomTable.columnAtPoint(e.getPoint());
 
                 // 클릭한 셀의 값(방장 id, 즉 방 id) 받아오기 
                 String clickedValue = (String) lbw.roomTable.getValueAt(row, 1);
                 
-                // 입장 요청 보내기 
-    			LoginRequestForm toSend = new LoginRequestForm();
-    			toSend.setReqType(9);
-    			toSend.setId(Start.myId);
-    			toSend.setNickname(Start.myNickname);
-    			toSend.setRoomName(clickedValue);
-    			LoginReplyForm received = LoginRequest.toServer_getObj(toSend);
-    			if (received.getResult())
-    			{
-    				// 로그인 성공 -> 로비 띄우고 새로고침, 로그인 창 초기화하고 닫기
-    				Start.roomId = clickedValue;
-    				// ShowMessage.information("게임 입장", clickedValue + "의 게임에 입장했습니다.");
-    				lbw.gameBoardWindow.setMyInfo();
-    				lbw.gameBoardWindow.setOpInfo(clickedValue);
-    				// 여기에 서버에가 나의 방 코드가 바뀌었음을 알려주는 메시지 하나 전달하기.
-					ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
-					SendObject.withSocket(Start.connSocket, getInRoom);
-					lbw.gameBoardWindow.gameLog.setText("");
-					lbw.setVisible(false);
-					lbw.chatWindow.setVisible(false);
-					lbw.gameBoardWindow.gameLog.setText("");
-					lbw.gameBoardWindow.gameLog.append("< 게임이 시작되었습니다! >\n");
-					lbw.gameBoardWindow.gameLog.append("[" + clickedValue + "] 의 턴...\n\n");
-    				lbw.gameBoardWindow.setVisible(true);
-    			}
-    			else
-    			{
-    				// 로그인 실패 
-    				ShowMessage.warning("방 입장 실패", "더 이상 존재하지 않는 게임이거나, 이미 진행 중인 게임입니다.");
-    				lbw.refresh();
-    			}
+                if (col == 0)
+                {
+                	if (ShowMessage.confirm("게임 입장", clickedValue + "의 게임에 입장하시겠습니까?"))
+                	{
+		                // 입장 요청 보내기 
+		    			LoginRequestForm toSend = new LoginRequestForm();
+		    			toSend.setReqType(9);
+		    			toSend.setId(Start.myId);
+		    			toSend.setNickname(Start.myNickname);
+		    			toSend.setRoomName(clickedValue);
+		    			LoginReplyForm received = LoginRequest.toServer_getObj(toSend);
+		    			if (received.getResult())
+		    			{
+		    				// 로그인 성공 -> 로비 띄우고 새로고침, 로그인 창 초기화하고 닫기
+		    				Start.roomId = clickedValue;
+		    				// ShowMessage.information("게임 입장", clickedValue + "의 게임에 입장했습니다.");
+		    				lbw.gameBoardWindow.setMyInfo();
+		    				lbw.gameBoardWindow.setOpInfo(clickedValue);
+		    				// 여기에 서버에가 나의 방 코드가 바뀌었음을 알려주는 메시지 하나 전달하기.
+							ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
+							SendObject.withSocket(Start.connSocket, getInRoom);
+							lbw.gameBoardWindow.gameLog.setText("");
+							lbw.setVisible(false);
+							lbw.chatWindow.setVisible(false);
+							lbw.gameBoardWindow.gameLog.setText("");
+							lbw.gameBoardWindow.gameLog.append("< 게임이 시작되었습니다! >\n");
+							lbw.gameBoardWindow.gameLog.append("[" + clickedValue + "] 의 턴...\n\n");
+		    				lbw.gameBoardWindow.setVisible(true);
+		    			}
+		    			else
+		    			{
+		    				// 로그인 실패 
+		    				ShowMessage.warning("방 입장 실패", "더 이상 존재하지 않는 게임이거나, 이미 진행 중인 게임입니다.");
+		    				lbw.refresh();
+		    			}
+                	}
+                }
+                else if (col == 1)
+                {
+                	// 방장 정보 불러오기. 
+                	lbw.userInfoWindow.loadInfo(clickedValue);
+                }
+                else if (col == 2)
+                {
+                	if (ShowMessage.confirm("관전 입장", clickedValue + "의 게임을 관전하시겠습니까?"))
+                	{
+                		// 관전 들어가기. 
+                	}
+                }
             }
         }
     }

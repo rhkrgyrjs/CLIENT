@@ -28,6 +28,7 @@ public class Start
 		ChatWindow chatWindow = ChatWindow.getInstance();
 		GameRoomWindow gameRoomWindow = GameRoomWindow.getInstance();
 		GameBoardWindow gameBoardWindow = GameBoardWindow.getInstance();
+		UserInfoWindow userInfoWindow = UserInfoWindow.getInstance();
 		
 		// 창 전환 의존성 설정 
 		loginWindow.setLobbyWindow(lobbyWindow);
@@ -49,6 +50,7 @@ public class Start
 		lobbyWindow.setGameRoomWindow(gameRoomWindow);
 		lobbyWindow.setGameBoardWindow(gameBoardWindow);
 		lobbyWindow.setChatWindow(chatWindow);
+		lobbyWindow.setUserInfoWindow(userInfoWindow);
 		
 		chatWindow.setGameBoardWindow(gameBoardWindow);
 		

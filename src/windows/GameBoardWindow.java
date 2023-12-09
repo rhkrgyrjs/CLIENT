@@ -856,11 +856,4 @@ public class GameBoardWindow extends JFrame
 		{
 		}
 	}
-
-	// 테스트용 메인함수 
-	public static void main(String[] args)
-	{
-		GameBoardWindow.getInstance().setVisible(true);;
-		
-	}
 }

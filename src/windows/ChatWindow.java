@@ -274,6 +274,8 @@ public class ChatWindow extends JFrame
 							ShowMessage.information("패배", "패배!");
 
 						Start.roomId = "@ServerMain";
+						ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
+						SendObject.withSocket(Start.connSocket, getInRoom);
 						cw.gameBoardWindow.setVisible(false);
 						cw.gameBoardWindow.clear();
 						cw.gameBoardWindow.lobbyWindow.setVisible(true);
