@@ -17,9 +17,13 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 
+import Client.Start;
+import form.ChatForm;
 import form.LoginReplyForm;
 import form.LoginRequestForm;
+import hash.SHA256;
 import login.LoginRequest;
+import socket.SendObject;
 import swing.ShowMessage;
 
 
@@ -48,10 +52,11 @@ public class LobbyWindow extends JFrame
 	// 전환할 창 설정 
 	private LoginWindow loginWindow = null;
 	private GameRoomWindow gameRoomWindow = null;
-	// private GameWindow gameWindow = null;
+	private GameBoardWindow gameBoardWindow = null;
 	
 	public void setLoginWindow(LoginWindow lw) {this.loginWindow = lw;}
 	public void setGameRoomWindow(GameRoomWindow grw) {this.gameRoomWindow = grw;}
+	public void setGameBoardWindow(GameBoardWindow gbw) {this.gameBoardWindow = gbw;}
 	
 	private String[] tableHeader = {"방 이름", "방장", "게임중 여부"};
 
@@ -122,6 +127,7 @@ public class LobbyWindow extends JFrame
 	{
 		LoginRequestForm toSend = new LoginRequestForm();
 		toSend.setReqType(8);
+		toSend.setId(Start.myId);
 		LoginReplyForm received = LoginRequest.toServer_getObj(toSend);
 		if (received.getResult() == true)
 		{
@@ -173,10 +179,35 @@ public class LobbyWindow extends JFrame
             {
                 int row = lbw.roomTable.rowAtPoint(e.getPoint());
 
-                // 클릭한 셀의 값을 출력
+                // 클릭한 셀의 값(방장 id, 즉 방 id) 받아오기 
                 String clickedValue = (String) lbw.roomTable.getValueAt(row, 1);
-                // 테스트용 메시지박스 출력 
-                ShowMessage.information("테스트용", "클릭한 방의 방장ID : " + clickedValue);
+                
+                // 입장 요청 보내기 
+    			LoginRequestForm toSend = new LoginRequestForm();
+    			toSend.setReqType(9);
+    			toSend.setId(Start.myId);
+    			toSend.setNickname(Start.myNickname);
+    			toSend.setRoomName(clickedValue);
+    			LoginReplyForm received = LoginRequest.toServer_getObj(toSend);
+    			if (received.getResult())
+    			{
+    				// 로그인 성공 -> 로비 띄우고 새로고침, 로그인 창 초기화하고 닫기
+    				Start.roomId = clickedValue;
+    				// ShowMessage.information("게임 입장", clickedValue + "의 게임에 입장했습니다.");
+    				lbw.gameBoardWindow.setMyInfo();
+    				lbw.gameBoardWindow.setOpInfo(clickedValue);
+    				// 여기에 서버에가 나의 방 코드가 바뀌었음을 알려주는 메시지 하나 전달하기.
+					ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
+					SendObject.withSocket(Start.connSocket, getInRoom);
+					lbw.gameBoardWindow.gameLog.setText("");
+    				lbw.gameBoardWindow.setVisible(true);
+    			}
+    			else
+    			{
+    				// 로그인 실패 
+    				ShowMessage.warning("방 입장 실패", "더 이상 존재하지 않는 게임이거나, 이미 진행 중인 게임입니다.");
+    				lbw.refresh();
+    			}
             }
         }
     }

@@ -10,6 +10,9 @@ public class Start
 	public static String myId = null;
 	public static String myNickname = null;
 	
+	// 현재 자신이 소속된 방 아이디 저장. 방의 ID -> 방장의 id임.
+	public static String roomId = "@Servermain";
+	
 	public static Socket connSocket = null;
 		
 	public static void main(String[] args)
@@ -24,7 +27,7 @@ public class Start
 		LobbyWindow lobbyWindow = LobbyWindow.getInstance();
 		ChatWindow chatWindow = ChatWindow.getInstance();
 		GameRoomWindow gameRoomWindow = GameRoomWindow.getInstance();
-		// GameWindow gameWindow = GameWindow.getInstance();
+		GameBoardWindow gameBoardWindow = GameBoardWindow.getInstance();
 		
 		// 창 전환 의존성 설정 
 		loginWindow.setLobbyWindow(lobbyWindow);
@@ -44,9 +47,14 @@ public class Start
 		
 		lobbyWindow.setLoginWindow(loginWindow);
 		lobbyWindow.setGameRoomWindow(gameRoomWindow);
-		// lobbyWindow.setGameWindow(gameWindow);
+		lobbyWindow.setGameBoardWindow(gameBoardWindow);
 		
-		// gameWindow.setLobbyWindow(lobbyWindow);
+		chatWindow.setGameBoardWindow(gameBoardWindow);
+		
+		gameRoomWindow.setGameBoardWindow(gameBoardWindow);
+		
+		gameBoardWindow.setChatWindow(chatWindow);
+		gameBoardWindow.setLobbyWindow(lobbyWindow);
 		
 		
 	}

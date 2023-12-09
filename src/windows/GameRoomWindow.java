@@ -6,8 +6,10 @@ import java.awt.event.ActionListener;
 import javax.swing.*;
 
 import Client.Start;
+import form.ChatForm;
 import form.LoginRequestForm;
 import login.LoginRequest;
+import socket.SendObject;
 import swing.ShowMessage;
 
 public class GameRoomWindow extends JFrame
@@ -27,6 +29,10 @@ public class GameRoomWindow extends JFrame
 	JTextField gameRoomInput = null;
 	JButton createRoomButton = null;
 	JButton cancelButton = null;
+	
+	private GameBoardWindow gameBoardWindow = null;
+	
+	public void setGameBoardWindow(GameBoardWindow gbw) {this.gameBoardWindow = gbw;}
 	
 	public void clear()
 	{
@@ -96,7 +102,14 @@ public class GameRoomWindow extends JFrame
 					// 여기에 게임으로 바로 넘어가는 루틴 넣기
 					gw.setVisible(false);
 					gw.clear();
-					ShowMessage.information("방 생성됨", "임시 메시지 : 방 생성 성공. 게임으로 넘어가는 루틴 짜자.");
+					// ShowMessage.information("방 생성됨", "임시 메시지 : 방 생성 성공. 게임으로 넘어가는 루틴 짜자.");
+					Start.roomId = Start.myId;
+					gw.gameBoardWindow.setMyInfo();
+					// 여기에 서버에게 나의 게임방 정보가 바뀌었음을 알리는 메시지 하나 보내기. 
+					ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
+					SendObject.withSocket(Start.connSocket, getInRoom);
+					gw.gameBoardWindow.setVisible(true);
+					// 내 정보 서버에서 조회해서 띄우기 
 				}
 				else
 				{
@@ -121,10 +134,4 @@ public class GameRoomWindow extends JFrame
 		}
 		
 	}
-	
-	public static void main(String[] args)
-	{
-		GameRoomWindow.getInstance().setVisible(true);
-	}
-
 }
