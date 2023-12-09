@@ -31,8 +31,12 @@ public class GameRoomWindow extends JFrame
 	JButton cancelButton = null;
 	
 	private GameBoardWindow gameBoardWindow = null;
+	private LobbyWindow lobbyWindow = null;
+	private ChatWindow chatWindow = null;
 	
 	public void setGameBoardWindow(GameBoardWindow gbw) {this.gameBoardWindow = gbw;}
+	public void setLobbyWindow(LobbyWindow lbw) {this.lobbyWindow = lbw;}
+	public void setChatWindow(ChatWindow cw) {this.chatWindow = cw;}
 	
 	public void clear()
 	{
@@ -108,6 +112,8 @@ public class GameRoomWindow extends JFrame
 					// 여기에 서버에게 나의 게임방 정보가 바뀌었음을 알리는 메시지 하나 보내기. 
 					ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
 					SendObject.withSocket(Start.connSocket, getInRoom);
+					gw.lobbyWindow.setVisible(false);
+					gw.chatWindow.setVisible(false);
 					gw.gameBoardWindow.setVisible(true);
 					// 내 정보 서버에서 조회해서 띄우기 
 				}

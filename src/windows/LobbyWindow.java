@@ -53,10 +53,12 @@ public class LobbyWindow extends JFrame
 	private LoginWindow loginWindow = null;
 	private GameRoomWindow gameRoomWindow = null;
 	private GameBoardWindow gameBoardWindow = null;
+	private ChatWindow chatWindow = null;
 	
 	public void setLoginWindow(LoginWindow lw) {this.loginWindow = lw;}
 	public void setGameRoomWindow(GameRoomWindow grw) {this.gameRoomWindow = grw;}
 	public void setGameBoardWindow(GameBoardWindow gbw) {this.gameBoardWindow = gbw;}
+	public void setChatWindow(ChatWindow cw) {this.chatWindow = cw;}
 	
 	private String[] tableHeader = {"방 이름", "방장", "게임중 여부"};
 
@@ -200,6 +202,11 @@ public class LobbyWindow extends JFrame
 					ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
 					SendObject.withSocket(Start.connSocket, getInRoom);
 					lbw.gameBoardWindow.gameLog.setText("");
+					lbw.setVisible(false);
+					lbw.chatWindow.setVisible(false);
+					lbw.gameBoardWindow.gameLog.setText("");
+					lbw.gameBoardWindow.gameLog.append("< 게임이 시작되었습니다! >\n");
+					lbw.gameBoardWindow.gameLog.append("[" + clickedValue + "] 의 턴...\n\n");
     				lbw.gameBoardWindow.setVisible(true);
     			}
     			else

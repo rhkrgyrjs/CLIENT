@@ -97,11 +97,45 @@ public class GameBoardWindow extends JFrame
 	JScrollPane logPane = null;
 	
 	// 다른 창들 제어
-	private ChatWindow chatWindow = null;
-	private LobbyWindow LobbyWindow = null;
+	ChatWindow chatWindow = null;
+	LobbyWindow lobbyWindow = null;
 	
 	public void setChatWindow(ChatWindow cw) {this.chatWindow = cw;}
-	public void setLobbyWindow(LobbyWindow lbw) {this.LobbyWindow = lbw;}
+	public void setLobbyWindow(LobbyWindow lbw) {this.lobbyWindow = lbw;}
+	
+	public void clear()
+	{
+		gameLog.setText("");
+        gameLog.append("\n");
+        gameLog.append("\n");
+        gameLog.append("\n");
+        gameLog.append("\n");
+        gameLog.append("\n");
+        gameLog.append("\n");
+        gameLog.append("\n");
+        gameLog.append("\n");
+        gameLog.append("\n");
+        gameLog.append("상대를 기다리는 중입니다...");
+
+        myPic = new ImageIcon("img/op_profile.png");
+        opPic = new ImageIcon("img/op_profile.png");
+        myPicLabel = new JLabel(myPic);
+        opPicLabel = new JLabel(opPic);
+        myNickNameLabel.setText("?");
+        opNickNameLabel.setText("?");
+        myRatingLabel.setText("elo Rating : ?");
+        opRatingLabel.setText("elo Rating : ?");
+        myLogLabel.setText("? 승 ? 무 ? 패");
+        opLogLabel.setText("? 승 ? 무 ? 패");
+        
+        myDeckCount.setText("00");
+        opDeckCount.setText("00");
+        
+        labelA.setIcon(blankCardImg);
+        labelB.setIcon(blankCardImg);
+        labelC.setIcon(blankCardImg);
+        labelD.setIcon(blankCardImg);
+	}
 	
 	private GameBoardWindow()
 	{

@@ -11,7 +11,7 @@ public class Start
 	public static String myNickname = null;
 	
 	// 현재 자신이 소속된 방 아이디 저장. 방의 ID -> 방장의 id임.
-	public static String roomId = "@Servermain";
+	public static String roomId = "@ServerMain";
 	
 	public static Socket connSocket = null;
 		
@@ -48,10 +48,13 @@ public class Start
 		lobbyWindow.setLoginWindow(loginWindow);
 		lobbyWindow.setGameRoomWindow(gameRoomWindow);
 		lobbyWindow.setGameBoardWindow(gameBoardWindow);
+		lobbyWindow.setChatWindow(chatWindow);
 		
 		chatWindow.setGameBoardWindow(gameBoardWindow);
 		
 		gameRoomWindow.setGameBoardWindow(gameBoardWindow);
+		gameRoomWindow.setLobbyWindow(lobbyWindow);
+		gameRoomWindow.setChatWindow(chatWindow);
 		
 		gameBoardWindow.setChatWindow(chatWindow);
 		gameBoardWindow.setLobbyWindow(lobbyWindow);

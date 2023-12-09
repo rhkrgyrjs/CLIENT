@@ -263,6 +263,22 @@ public class ChatWindow extends JFrame
 						cw.gameBoardWindow.gameLog.setText("");
 						cw.gameBoardWindow.setOpInfo(received.getId());
 					}
+					else if (received.getReqType() == 4)
+					{
+						// 게임 끝났을때 받는 메시지.
+						if (Start.myId.equals(received.getId()))
+							ShowMessage.information("승리", "승리!");
+						else if ("@Draw".equals(received.getId()))
+							ShowMessage.information("무승부", "무승부!");
+						else
+							ShowMessage.information("패배", "패배!");
+
+						Start.roomId = "@ServerMain";
+						cw.gameBoardWindow.setVisible(false);
+						cw.gameBoardWindow.clear();
+						cw.gameBoardWindow.lobbyWindow.setVisible(true);
+						cw.gameBoardWindow.chatWindow.setVisible(true);
+					}
 				}
 			}
 		}
