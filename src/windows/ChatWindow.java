@@ -52,8 +52,10 @@ public class ChatWindow extends JFrame
     SimpleAttributeSet right = null;
     
     private GameBoardWindow gameBoardWindow = null;
+    private SpectWindow spectWindow = null;
     
     public void setGameBoardWindow(GameBoardWindow gbw) {this.gameBoardWindow = gbw;}
+    public void setSpectWindow(SpectWindow spw) {this.spectWindow = spw;}
 	
 	private ChatWindow()
 	{
@@ -280,6 +282,24 @@ public class ChatWindow extends JFrame
 						cw.gameBoardWindow.clear();
 						cw.gameBoardWindow.lobbyWindow.setVisible(true);
 						cw.gameBoardWindow.chatWindow.setVisible(true);
+					}
+					else if (received.getReqType() == 5)
+					{
+						// 관전자가 받는 화면의 메시지 
+						cw.spectWindow.updateWindow(received);
+						System.out.println("서버의 메시지 : " + received.getMsg());
+					}
+					else if (received.getReqType() == 6)
+					{
+						// 관전자가 게임 끝났을때 받는 메시지 
+						ShowMessage.information("게임 끝", received.getMsg());
+						Start.roomId = "@ServerMain";
+						ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
+						SendObject.withSocket(Start.connSocket, getInRoom);
+						cw.spectWindow.setVisible(false);
+						cw.spectWindow.clear();
+						cw.spectWindow.lobbyWindow.setVisible(true);
+						cw.spectWindow.chatWindow.setVisible(true);
 					}
 				}
 			}

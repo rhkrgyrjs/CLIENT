@@ -45,6 +45,7 @@ public class LobbyWindow extends JFrame
 	private JButton searchButton = null;
 	private JButton refreshButton = null;
 	private JButton makeroomButton = null;
+	private JButton ratingButton = null;
 	private JTable roomTable = null;
 	private JScrollPane roomScrollPane = null;
 	private DefaultTableModel tableModel = null;
@@ -55,12 +56,16 @@ public class LobbyWindow extends JFrame
 	private GameBoardWindow gameBoardWindow = null;
 	private ChatWindow chatWindow = null;
 	private UserInfoWindow userInfoWindow = null;
+	private RatingWindow ratingWindow = null;
+	private SpectWindow spectWindow = null;
 	
 	public void setLoginWindow(LoginWindow lw) {this.loginWindow = lw;}
 	public void setGameRoomWindow(GameRoomWindow grw) {this.gameRoomWindow = grw;}
 	public void setGameBoardWindow(GameBoardWindow gbw) {this.gameBoardWindow = gbw;}
 	public void setChatWindow(ChatWindow cw) {this.chatWindow = cw;}
 	public void setUserInfoWindow(UserInfoWindow uifw) {this.userInfoWindow = uifw;}
+	public void setRatingWindow(RatingWindow rtw) {this.ratingWindow = rtw;}
+	public void setSpectWindow(SpectWindow spw) {this.spectWindow = spw;}
 	
 	private String[] tableHeader = {"방 이름", "방장", "게임중 여부"};
 
@@ -87,6 +92,7 @@ public class LobbyWindow extends JFrame
 		searchButton = new JButton("검색");
 		refreshButton = new JButton("새로고침");
 		makeroomButton = new JButton("방 만들기");
+		ratingButton = new JButton("순위 보기");
 		tableModel = new DefaultTableModel(lobInfo, tableHeader);
 		roomTable= new JTable(tableModel) // 항목의 수정 가능 여부 관련 Override 
 				{
@@ -99,11 +105,12 @@ public class LobbyWindow extends JFrame
 		roomScrollPane = new JScrollPane(roomTable);
 		
 		// 컴포넌트 바운딩 
-		roomNameLabel.setBounds(115, 14, 50, 20);
-		roomNameInput.setBounds(165, 14, 200, 20);
-		searchButton.setBounds(370, 14, 50, 20);
+		roomNameLabel.setBounds(95, 14, 50, 20);
+		roomNameInput.setBounds(145, 14, 200, 20);
+		searchButton.setBounds(350, 14, 50, 20);
 		refreshButton.setBounds(5, 10, 70, 30);
 		makeroomButton.setBounds(470, 10, 75, 30);
+		ratingButton.setBounds(402, 10, 75, 30);
 		roomScrollPane.setBounds(10, 50, 530, 310);
 		
 		// 이벤트 처리 
@@ -111,6 +118,7 @@ public class LobbyWindow extends JFrame
 		makeroomButton.addActionListener(new ShowGameRoomWindow(this));
 		searchButton.addActionListener(new SearchRoom(this));
 		roomNameInput.addKeyListener(new SearchRoom(this));		
+		ratingButton.addActionListener(new ShowRating(this));
 		roomTable.addMouseListener(new JoinGame(this));
 		
 		// 컴포넌트 add 
@@ -119,6 +127,7 @@ public class LobbyWindow extends JFrame
 		add(searchButton);
 		add(refreshButton);
 		add(makeroomButton);
+		add(ratingButton);
 		add(roomScrollPane);
 		
 		
@@ -234,6 +243,7 @@ public class LobbyWindow extends JFrame
                 	if (ShowMessage.confirm("관전 입장", clickedValue + "의 게임을 관전하시겠습니까?"))
                 	{
                 		// 관전 들어가기. 
+                		lbw.spectWindow.initSpect(clickedValue);
                 	}
                 }
             }
@@ -305,5 +315,19 @@ public class LobbyWindow extends JFrame
 		{
 			lbw.gameRoomWindow.setVisible(true);
 		}
+	}
+	
+	class ShowRating implements ActionListener
+	{
+		LobbyWindow lbw = null;
+		ShowRating(LobbyWindow lbw) {this.lbw = lbw;}
+
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			lbw.ratingWindow.refresh();
+			lbw.ratingWindow.setVisible(true);
+		}
+		
 	}
 }

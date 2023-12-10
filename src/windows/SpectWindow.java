@@ -1,5 +1,10 @@
 package windows;
 
+import java.awt.Graphics;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.awt.image.BufferedImage;
+
 import javax.swing.*;
 
 import Client.Start;
@@ -7,37 +12,26 @@ import form.ChatForm;
 import form.GameBoardInfoForm;
 import form.LoginReplyForm;
 import form.LoginRequestForm;
-import hash.SHA256;
 import image.Blob;
 import image.PicResize;
 import login.LoginRequest;
 import socket.SendObject;
 import swing.ShowMessage;
+import windows.GameBoardWindow.Close;
+import windows.GameBoardWindow.FlipNRing;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.util.Random;
-
-public class GameBoardWindow extends JFrame
+public class SpectWindow extends JFrame 
 {
 	// 직렬화 처리 
 	private static final long serialVersionUID = 1L;
 	
 	// 싱글톤 처리 
-	private static GameBoardWindow single_instance = null;
-	public static GameBoardWindow getInstance()
+	private static SpectWindow single_instance = null;
+	public static SpectWindow getInstance()
 	{
-		if (single_instance == null) single_instance = new GameBoardWindow();
+		if (single_instance == null) single_instance = new SpectWindow();
 		return single_instance;
 	}
-	
-	boolean onGame = false;
 	
 	// 배경, 종 이미지 
 	ImageIcon bgImg = null;
@@ -106,10 +100,9 @@ public class GameBoardWindow extends JFrame
 	
 	public void setChatWindow(ChatWindow cw) {this.chatWindow = cw;}
 	public void setLobbyWindow(LobbyWindow lbw) {this.lobbyWindow = lbw;}
-	
+
 	public void clear()
 	{
-		this.onGame = false;
 		gameLog.setText("");
         gameLog.append("\n");
         gameLog.append("\n");
@@ -120,7 +113,7 @@ public class GameBoardWindow extends JFrame
         gameLog.append("\n");
         gameLog.append("\n");
         gameLog.append("\n");
-        gameLog.append("상대를 기다리는 중입니다...");
+        gameLog.append("관전자 모드");
 
         myPic = new ImageIcon("img/op_profile.png");
         opPic = new ImageIcon("img/op_profile.png");
@@ -142,10 +135,10 @@ public class GameBoardWindow extends JFrame
         labelD.setIcon(blankCardImg);
 	}
 	
-	private GameBoardWindow()
+	private SpectWindow()
 	{
 		// 창 기본 세팅 
-		setTitle("할리갈리");
+		setTitle("관전");
 		setResizable(false);
 		setSize(1200, 800);
 		setLayout(null);
@@ -226,7 +219,7 @@ public class GameBoardWindow extends JFrame
         gameLog.append("\n");
         gameLog.append("\n");
         gameLog.append("\n");
-        gameLog.append("상대를 기다리는 중입니다...");
+        gameLog.append("관전자 모드");
         logPane = new JScrollPane(gameLog);
         logPane.setBounds(10, 220, 200, 310);
         gameLog.setEditable(false);
@@ -269,10 +262,6 @@ public class GameBoardWindow extends JFrame
         myDeckCount.setBounds(590, 150, 50, 20);
         opDeckCount.setBounds(590, 590, 50, 20);
         
-        // 카드 펼치는 리스너 이벤트 처리 
-        addKeyListener(new FlipNRing(this));
-        
-        
         // 컴포넌트 add 
         bgPanel.add(bellImgLabel);
         
@@ -295,11 +284,44 @@ public class GameBoardWindow extends JFrame
 		setVisible(false);
 	}
 	
-	public void setMyInfo()
+	public void initSpect(String roomId)
+	{
+            // 입장 요청 보내기 
+			LoginRequestForm toSend = new LoginRequestForm();
+			toSend.setReqType(13);
+			toSend.setId(Start.myId);
+			toSend.setRoomName(roomId);
+			LoginReplyForm received = LoginRequest.toServer_getObj(toSend);
+			if (received.getResult())
+			{
+				// 관전자 명단에 들어가기 성공하면 
+				toSend.setRoomName(roomId);
+				Start.roomId = roomId;
+				setHostInfo(roomId);
+				setGuestInfo(received.getId()); // 13번 요청은 게스트의 id도 전달함. 
+				// 여기에 서버에가 나의 방 코드가 바뀌었음을 알려주는 메시지 하나 전달하기.
+				ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
+				SendObject.withSocket(Start.connSocket, getInRoom);
+				gameLog.setText("");
+				chatWindow.setVisible(false);
+				lobbyWindow.setVisible(false);
+				gameLog.append("< 관전을 시작합니다. >\n");
+				this.setVisible(true);
+			}
+			else
+			{
+				// 로그인 실패 
+				ShowMessage.warning("방 입장 실패", "더 이상 존재하지 않는 게임이거나, 이미 진행 중인 게임입니다.");
+				lobbyWindow.refresh();
+			}
+    	
+	}
+	
+	public void setHostInfo(String id)
 	{
 		LoginRequestForm toSend = new LoginRequestForm();
 		toSend.setReqType(10);
-		toSend.setId(Start.myId);
+		toSend.setId(id);
 		LoginReplyForm received = LoginRequest.toServer_getObj(toSend);
 		if (received.getResult())
 		{
@@ -318,7 +340,7 @@ public class GameBoardWindow extends JFrame
 		}
 	}
 	
-	public void setOpInfo(String id)
+	public void setGuestInfo(String id)
 	{
 		LoginRequestForm toSend = new LoginRequestForm();
 		toSend.setReqType(10);
@@ -339,7 +361,6 @@ public class GameBoardWindow extends JFrame
 			// 정보 불러오기 실패 
 			this.opPicLabel.setText("정보를 불러올 수 없습니다.");
 		}
-		this.onGame = true;
 	}
 	
 	public void updateWindow(ChatForm data)
@@ -820,78 +841,25 @@ public class GameBoardWindow extends JFrame
 				}
 		
 	}
-	
-	public void flipCard() 
-	{
-		// 서버로 방 제목, 아이디, 카드 펼치기 명령 보냄 
-		// System.out.println("카드펼침 ");
-		ChatForm toSend = new ChatForm(2, Start.roomId, Start.myId, Start.myNickname, "flip");
-		SendObject.withSocket(Start.connSocket, toSend);
-	}
-	
-	public void ringBell()
-	{
-		// 서버로 방 제목, 아이디, 종 울리기 명령 보냄 
-		// System.out.println("종 울림 ");
-		ChatForm toSend = new ChatForm(2, Start.roomId, Start.myId, Start.myNickname, "ring");
-		SendObject.withSocket(Start.connSocket, toSend);
-	}
-	
-	
-	class FlipNRing implements KeyListener
-	{
-		GameBoardWindow gbw = null;
-		FlipNRing(GameBoardWindow gbw) {this.gbw = gbw;}
-		
-		@Override
-		public void keyTyped(KeyEvent e) 
-		{
-		}
-		
-		@Override
-		public void keyPressed(KeyEvent e) 
-		{
-			if (e.getKeyCode() == KeyEvent.VK_SPACE)
-				gbw.ringBell();
-			else if (e.getKeyCode() == KeyEvent.VK_UP)
-				gbw.flipCard();
-		}
-		
-		@Override
-		public void keyReleased(KeyEvent e) 
-		{
-		}
-	}
-	
+
 	class Close extends WindowAdapter
 	{
-		GameBoardWindow gbw = null;
-		Close(GameBoardWindow gbw) {this.gbw = gbw;}
+		SpectWindow spw = null;
+		Close(SpectWindow spw) {this.spw = spw;}
 		
         @Override
         public void windowClosing(WindowEvent e) 
         {
-        	if (onGame == true ) {
-        	if (ShowMessage.confirm("게임 종료", "탈주하시겠습니까? 게임은 패배 처리됩니다."))
+        	if (ShowMessage.confirm("관전 종료", "관전을 종료하시겠습니까?"))
         	{
-        		System.exit(0);
+        		spw.setVisible(false);
+        		spw.clear();
+        		// 서버로 관전자에서 제외해달라는 요청 보내기 
+        		// 자신의 방 아이디가 바뀌었다는 요청 보내기. 
         	}
         	else
         	{
-        		gbw.setVisible(true);
-        	}}
-        	else
-        	{
-        		gbw.setVisible(false);
-        		gbw.clear();
-        		// 서버에 방 없애게 요청 보내기 
-    			LoginRequestForm toSend = new LoginRequestForm();
-    			toSend.setReqType(12);
-    			toSend.setRoomName(Start.roomId);
-    			Start.roomId = "@ServerMain";
-    			LoginRequest.toServer(toSend);
-        		gbw.lobbyWindow.setVisible(true);
-        		gbw.chatWindow.setVisible(true);
+        		spw.setVisible(true);
         	}
         }
 	}

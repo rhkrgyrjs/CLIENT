@@ -29,6 +29,8 @@ public class Start
 		GameRoomWindow gameRoomWindow = GameRoomWindow.getInstance();
 		GameBoardWindow gameBoardWindow = GameBoardWindow.getInstance();
 		UserInfoWindow userInfoWindow = UserInfoWindow.getInstance();
+		RatingWindow ratingWindow = RatingWindow.getInstance();
+		SpectWindow spectWindow = SpectWindow.getInstance();
 		
 		// 창 전환 의존성 설정 
 		loginWindow.setLobbyWindow(lobbyWindow);
@@ -51,8 +53,11 @@ public class Start
 		lobbyWindow.setGameBoardWindow(gameBoardWindow);
 		lobbyWindow.setChatWindow(chatWindow);
 		lobbyWindow.setUserInfoWindow(userInfoWindow);
+		lobbyWindow.setRatingWindow(ratingWindow);
+		lobbyWindow.setSpectWindow(spectWindow);
 		
 		chatWindow.setGameBoardWindow(gameBoardWindow);
+		chatWindow.setSpectWindow(spectWindow);
 		
 		gameRoomWindow.setGameBoardWindow(gameBoardWindow);
 		gameRoomWindow.setLobbyWindow(lobbyWindow);
@@ -61,7 +66,8 @@ public class Start
 		gameBoardWindow.setChatWindow(chatWindow);
 		gameBoardWindow.setLobbyWindow(lobbyWindow);
 		
-		
+		spectWindow.setLobbyWindow(lobbyWindow);
+		spectWindow.setChatWindow(chatWindow);
 	}
 
 }
