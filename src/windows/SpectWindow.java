@@ -855,7 +855,14 @@ public class SpectWindow extends JFrame
         		spw.setVisible(false);
         		spw.clear();
         		// 서버로 관전자에서 제외해달라는 요청 보내기 
+        		ChatForm noSpect = new ChatForm(4, Start.roomId, Start.myId, Start.myNickname, "");
+				SendObject.withSocket(Start.connSocket, noSpect);
         		// 자신의 방 아이디가 바뀌었다는 요청 보내기. 
+				Start.roomId = "@ServerMain";
+				ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
+				SendObject.withSocket(Start.connSocket, getInRoom);
+				spw.chatWindow.setVisible(true);
+				spw.lobbyWindow.setVisible(true);
         	}
         	else
         	{
