@@ -311,7 +311,7 @@ public class SpectWindow extends JFrame
 			else
 			{
 				// 로그인 실패 
-				ShowMessage.warning("방 입장 실패", "더 이상 존재하지 않는 게임이거나, 이미 진행 중인 게임입니다.");
+				ShowMessage.warning("방 입장 실패", "게임이 시작되기 전입니다.");
 				lobbyWindow.refresh();
 			}
     	
