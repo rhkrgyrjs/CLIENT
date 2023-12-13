@@ -67,9 +67,11 @@ public class ChatWindow extends JFrame
     
     private GameBoardWindow gameBoardWindow = null;
     private SpectWindow spectWindow = null;
+    private EmojiSelectWindow emojiSelectWindow = null;
     
     public void setGameBoardWindow(GameBoardWindow gbw) {this.gameBoardWindow = gbw;}
     public void setSpectWindow(SpectWindow spw) {this.spectWindow = spw;}
+    public void setEmojiSelectWindow(EmojiSelectWindow emsw) {this.emojiSelectWindow = emsw;} 
 	
 	private ChatWindow()
 	{
@@ -119,6 +121,7 @@ public class ChatWindow extends JFrame
 		sendButton.addActionListener(new Send(this));
 		chatInput.addKeyListener(new Send(this));
 		picSendButton.addActionListener(new SendPic(this));
+		emojiSendButton.addActionListener(new SendEmoji(this));
 
 		picChooser.setFileFilter(new FileNameExtensionFilter("jpg", "jpg"));
 		picChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -205,11 +208,24 @@ public class ChatWindow extends JFrame
 					ChatForm toSend = new ChatForm(1, Start.roomId, Start.myId, Start.myNickname, cw.chatInput.getText());
 					toSend.setPicBlob(imageblob);
 					SendObject.withSocket(Start.connSocket, toSend);
-					cw.chatInput.setText("");
 					} catch (IOException a) {a.printStackTrace();}
 				}
 			}
 			
+		}
+		
+	}
+	
+	class SendEmoji implements ActionListener
+	{
+		ChatWindow cw = null;
+		SendEmoji(ChatWindow cw) {this.cw = cw;}
+
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			cw.emojiSelectWindow.setLocationRelativeTo(cw);
+			cw.emojiSelectWindow.setVisible(true);
 		}
 		
 	}
@@ -294,7 +310,6 @@ public class ChatWindow extends JFrame
 					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
 								cw.doc.insertString(doc.getLength(), "\n", cw.right);
 					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
-					            
 					            
 					            String[] split = splitString(received.getMsg());
 					            for (int i=0; i<split.length; i++)

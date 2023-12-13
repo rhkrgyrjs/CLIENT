@@ -31,6 +31,7 @@ public class Start
 		UserInfoWindow userInfoWindow = UserInfoWindow.getInstance();
 		RatingWindow ratingWindow = RatingWindow.getInstance();
 		SpectWindow spectWindow = SpectWindow.getInstance();
+		EmojiSelectWindow emojiSelectWindow = EmojiSelectWindow.getInstance();
 		
 		// 창 전환 의존성 설정 
 		loginWindow.setLobbyWindow(lobbyWindow);
@@ -58,6 +59,7 @@ public class Start
 		
 		chatWindow.setGameBoardWindow(gameBoardWindow);
 		chatWindow.setSpectWindow(spectWindow);
+		chatWindow.setEmojiSelectWindow(emojiSelectWindow);
 		
 		gameRoomWindow.setGameBoardWindow(gameBoardWindow);
 		gameRoomWindow.setLobbyWindow(lobbyWindow);
