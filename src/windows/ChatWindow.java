@@ -6,20 +6,30 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.StyledDocument;
 
 import Client.Start;
 import form.ChatForm;
+import image.Blob;
+import image.PicResize;
+import parse.EndsWithImg;
 import socket.SendObject;
 import swing.ShowMessage;
+import windows.SignupWindow.ChooseProfilePic;
 import socket.ReceiveObject;
 
 import javax.swing.text.*;
@@ -45,6 +55,10 @@ public class ChatWindow extends JFrame
 	private JTextPane chatArea = null;
 	private JTextField chatInput = null;
 	private JButton sendButton = null;
+	private JButton picSendButton = null;
+	private JButton emojiSendButton = null;
+	// 전송할 사진 선택을 위해 
+	private JFileChooser picChooser = null;
 	
 	StyledDocument doc = null; 
 	
@@ -76,6 +90,9 @@ public class ChatWindow extends JFrame
 		chatScroll = new JScrollPane(chatArea);
 		chatInput = new JTextField();
 		sendButton = new JButton("전송");
+		picSendButton = new JButton("🖼️");
+		emojiSendButton = new JButton("😃");
+		picChooser = new JFileChooser();
 		
 		doc = chatArea.getStyledDocument();
 		left = new SimpleAttributeSet();
@@ -92,18 +109,26 @@ public class ChatWindow extends JFrame
 		
 		// 컴포넌트 바운
 		chatScroll.setBounds(5, 5, 290, 340);
-		chatInput.setBounds(5, 348, 250, 20);
+		chatInput.setBounds(55, 348, 200, 20);
 		sendButton.setBounds(248, 346, 53, 25);
+		picSendButton.setBounds(5, 348, 20, 20);
+		emojiSendButton.setBounds(30, 348, 20, 20);
 		
 		// 이벤트 처리 
 		chatArea.setEditable(false);
 		sendButton.addActionListener(new Send(this));
 		chatInput.addKeyListener(new Send(this));
+		picSendButton.addActionListener(new SendPic(this));
+
+		picChooser.setFileFilter(new FileNameExtensionFilter("jpg", "jpg"));
+		picChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		
 		// 컴포넌트 add 
 		add(chatScroll);
 		add(chatInput);
 		add(sendButton);
+		add(picSendButton);
+		add(emojiSendButton);
 		
 		// 창 생성시 visible 여부 
 		setVisible(false);
@@ -158,6 +183,37 @@ public class ChatWindow extends JFrame
 		public void keyReleased(KeyEvent e) {}
 	}
 	
+	class SendPic implements ActionListener
+	{
+		ChatWindow cw = null;
+		SendPic(ChatWindow cw) {this.cw = cw;}
+
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			if (cw.picChooser.showOpenDialog(null) == 0)
+			{
+				// 파일 불러오기 창 열림 
+				// sw.picChooser.getSelectedFile(); // 대충 경로로 설정된 파일 열어오기 느낌일듯?
+				// 파싱해서 확장자 jpg 아니면 컷하기 
+				if (EndsWithImg.isJpg((cw.picChooser.getSelectedFile().getAbsolutePath())))
+				{
+					try {
+					// 이건 받아서 리사이징하자. BufferedImage resized = PicResize.getChatImage(cw.picChooser.getSelectedFile().getAbsolutePath());
+			    	BufferedImage bufim = ImageIO.read(new File(cw.picChooser.getSelectedFile().getAbsolutePath()));
+					byte[] imageblob = Blob.toByteArray(bufim, "jpg");
+					ChatForm toSend = new ChatForm(1, Start.roomId, Start.myId, Start.myNickname, cw.chatInput.getText());
+					toSend.setPicBlob(imageblob);
+					SendObject.withSocket(Start.connSocket, toSend);
+					cw.chatInput.setText("");
+					} catch (IOException a) {a.printStackTrace();}
+				}
+			}
+			
+		}
+		
+	}
+	
 	class ReplyReceiveThread extends Thread
 	{
 		Socket socket = null;
@@ -187,6 +243,28 @@ public class ChatWindow extends JFrame
 
 	        return result;
 	    }
+		
+		// JTextpane에 사진 띄우는 메소드. 
+		private void appendImage(ImageIcon imageIcon, int alignment) 
+		{
+		    StyledDocument doc = (StyledDocument) chatArea.getDocument();
+		    Style style = doc.addStyle("StyleName", null);
+
+		    try {
+		        // 아이콘을 정렬로 설정
+		        StyleConstants.setIcon(style, imageIcon);
+
+		        // 문단의 속성을 설정하여 정렬
+		        SimpleAttributeSet paragraphAttributes = new SimpleAttributeSet();
+		        StyleConstants.setAlignment(paragraphAttributes, alignment);
+		        doc.setParagraphAttributes(doc.getLength(), 1, paragraphAttributes, false);
+
+		        // 텍스트와 함께 스타일 적용하여 추가
+		        doc.insertString(doc.getLength(), "ignored text", style);
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+		}
 		 
 		@Override
 		public void run()
@@ -206,47 +284,89 @@ public class ChatWindow extends JFrame
 						// 채팅 요청일 때 
 					{
 						if (received.getId().equals(Start.myId))
-							
+							// 자신이 보낸 채팅일 경우 
 						{
-							try {
-							cw.doc.insertString(doc.getLength(), "[나]", cw.right);
-				            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
-							cw.doc.insertString(doc.getLength(), "\n", cw.right);
-				            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
-				            
-				            
-				            String[] split = splitString(received.getMsg());
-				            for (int i=0; i<split.length; i++)
-				            {
-								cw.doc.insertString(doc.getLength(), " " + split[i], cw.right);
+							if (received.getPicBlob() == null)
+							{
+								// 자신이 보낸 메시지일 경우
+								try {
+								cw.doc.insertString(doc.getLength(), "[나]", cw.right);
 					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
 								cw.doc.insertString(doc.getLength(), "\n", cw.right);
 					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
-				            }
-							cw.doc.insertString(doc.getLength(), "\n", cw.right);
-				            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
-							cw.chatArea.setCaretPosition(cw.chatArea.getDocument().getLength());} catch (BadLocationException e) {}
-						
+					            
+					            
+					            String[] split = splitString(received.getMsg());
+					            for (int i=0; i<split.length; i++)
+					            {
+									cw.doc.insertString(doc.getLength(), " " + split[i], cw.right);
+						            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
+									cw.doc.insertString(doc.getLength(), "\n", cw.right);
+						            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
+					            }
+								cw.doc.insertString(doc.getLength(), "\n", cw.right);
+					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
+								cw.chatArea.setCaretPosition(cw.chatArea.getDocument().getLength());} catch (BadLocationException e) {}
+							
+							}
+							else if (received.getPicBlob() != null)
+							{
+								// 내가 보낸 사진 출력하는 루틴. 
+								try {
+								BufferedImage resizedImage = PicResize.getChatImage(Blob.toBufferedImage(received.getPicBlob()));
+								cw.doc.insertString(doc.getLength(), "[나]", cw.right);
+					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
+								cw.doc.insertString(doc.getLength(), "\n", cw.right);
+					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
+					            ImageIcon image = new ImageIcon(resizedImage);
+					            appendImage(image, StyleConstants.ALIGN_RIGHT);
+								cw.doc.insertString(doc.getLength(), "\n", cw.right);
+								cw.doc.insertString(doc.getLength(), "\n", cw.right);
+					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
+								} catch (BadLocationException e) {}
+								
+							}
 						}
 						else 
 						{
-							try {
-							cw.doc.insertString(doc.getLength(), "["+received.getId()+" # " +received.getNickName()+"]", cw.left);
-				            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.left, false);
-							cw.doc.insertString(doc.getLength(), "\n", cw.left);
-				            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.left, false);
-				            
-				            String[] split = splitString(received.getMsg());
-				            for (int i=0; i<split.length; i++)
-				            {
-				            	cw.doc.insertString(doc.getLength(), " " + split[i], cw.left);
-				            	cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.left, false);
-				            	cw.doc.insertString(doc.getLength(), "\n", cw.left);
-				            	cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.left, false);
-				            }
-							cw.doc.insertString(doc.getLength(), "\n", cw.left);
-				            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.left, false);
-							cw.chatArea.setCaretPosition(cw.chatArea.getDocument().getLength());} catch (BadLocationException e) {}
+							if (received.getPicBlob() == null)
+							{
+								// 다른 사람이 보낸 메시지일 경우 
+								try {
+								cw.doc.insertString(doc.getLength(), "["+received.getId()+" # " +received.getNickName()+"]", cw.left);
+					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.left, false);
+								cw.doc.insertString(doc.getLength(), "\n", cw.left);
+					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.left, false);
+					            
+					            String[] split = splitString(received.getMsg());
+					            for (int i=0; i<split.length; i++)
+					            {
+					            	cw.doc.insertString(doc.getLength(), " " + split[i], cw.left);
+					            	cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.left, false);
+					            	cw.doc.insertString(doc.getLength(), "\n", cw.left);
+					            	cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.left, false);
+					            }
+								cw.doc.insertString(doc.getLength(), "\n", cw.left);
+					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.left, false);
+								cw.chatArea.setCaretPosition(cw.chatArea.getDocument().getLength());} catch (BadLocationException e) {}
+							}
+							else if (received.getPicBlob() != null)
+							{
+								// 다른 사람이 사진 보냈을 때의 루틴.
+								try {
+								BufferedImage resizedImage = PicResize.getChatImage(Blob.toBufferedImage(received.getPicBlob()));
+								cw.doc.insertString(doc.getLength(), "["+received.getId()+" # " +received.getNickName()+"]", cw.left);
+					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.left, false);
+								cw.doc.insertString(doc.getLength(), "\n", cw.right);
+					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
+					            ImageIcon image = new ImageIcon(resizedImage);
+					            appendImage(image, StyleConstants.ALIGN_LEFT);
+								cw.doc.insertString(doc.getLength(), "\n", cw.right);
+								cw.doc.insertString(doc.getLength(), "\n", cw.right);
+					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
+								} catch (BadLocationException e) {}
+								
+							}
 						}
 					}
 					else if (received.getReqType() == 2)

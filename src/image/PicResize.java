@@ -48,6 +48,24 @@ public class PicResize
         return resizedImage;
     }
 	
+	// 채팅으로 보낼 사진을 리사이징. 
+	public static BufferedImage getChatImage(BufferedImage originalImage) 
+	{
+        // 새로운 이미지 생성
+        BufferedImage resizedImage = new BufferedImage(150, 150, BufferedImage.TYPE_INT_ARGB);
+
+        // Graphics2D 객체를 얻어옴
+        Graphics2D g2d = resizedImage.createGraphics();
+
+        // 이미지를 새로운 크기로 그림
+        g2d.drawImage(originalImage.getScaledInstance(150, 150, Image.SCALE_SMOOTH), 0, 0, null);
+
+        // Graphics2D 객체 해제
+        g2d.dispose();
+
+        return resizedImage;
+    }
+	
 	private static BufferedImage resize(InputStream is, int width, int height) throws IOException
 	{
 		BufferedImage inputImage = ImageIO.read(is);
@@ -58,4 +76,6 @@ public class PicResize
 		
 		return outputImage;
 	}
+	
+	
 }
