@@ -26,7 +26,7 @@ public class ArrayListSave
 	    }
 	}
 	
-	private static ArrayList<GameBoardInfoForm> loadArrayListFromFile(String filePath) 
+	public static ArrayList<GameBoardInfoForm> loadArrayListFromFile(String filePath) 
 	{
         ArrayList<GameBoardInfoForm> loadedArrayList = new ArrayList<>();
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath))) 

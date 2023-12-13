@@ -6,15 +6,22 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import Client.Start;
@@ -22,7 +29,10 @@ import form.ChatForm;
 import form.LoginReplyForm;
 import form.LoginRequestForm;
 import hash.SHA256;
+import image.Blob;
+import image.PicResize;
 import login.LoginRequest;
+import parse.EndsWithImg;
 import socket.SendObject;
 import swing.ShowMessage;
 
@@ -49,6 +59,9 @@ public class LobbyWindow extends JFrame
 	private JTable roomTable = null;
 	private JScrollPane roomScrollPane = null;
 	private DefaultTableModel tableModel = null;
+	private JButton replayButton = null;
+	
+	private JFileChooser picChooser = null;
 	
 	// 전환할 창 설정 
 	private LoginWindow loginWindow = null;
@@ -58,6 +71,7 @@ public class LobbyWindow extends JFrame
 	private UserInfoWindow userInfoWindow = null;
 	private RatingWindow ratingWindow = null;
 	private SpectWindow spectWindow = null;
+	private ReplayWindow replayWindow = null;
 	
 	public void setLoginWindow(LoginWindow lw) {this.loginWindow = lw;}
 	public void setGameRoomWindow(GameRoomWindow grw) {this.gameRoomWindow = grw;}
@@ -66,6 +80,7 @@ public class LobbyWindow extends JFrame
 	public void setUserInfoWindow(UserInfoWindow uifw) {this.userInfoWindow = uifw;}
 	public void setRatingWindow(RatingWindow rtw) {this.ratingWindow = rtw;}
 	public void setSpectWindow(SpectWindow spw) {this.spectWindow = spw;}
+	public void setReplayWindow(ReplayWindow rpw) {this.replayWindow = rpw;}
 	
 	private String[] tableHeader = {"방 이름", "방장", "게임중 여부"};
 
@@ -85,6 +100,10 @@ public class LobbyWindow extends JFrame
 		// 창 닫았을때 이벤트 리스너 
 		//this.addWindowListener(); -> 로그아웃 하시겠습니까 메시지창. 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
+
+		picChooser = new JFileChooser();
+		picChooser.setFileFilter(new FileNameExtensionFilter("할리갈리 로그 파일", "hglog"));
+		picChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		
 		// 컴포넌트 생성하기
 		roomNameLabel = new JLabel("방 이름 : ");
@@ -103,15 +122,17 @@ public class LobbyWindow extends JFrame
 		roomTable.getColumn("방장").setPreferredWidth(50);
 		roomTable.getColumn("게임중 여부").setPreferredWidth(20);
 		roomScrollPane = new JScrollPane(roomTable);
+		replayButton = new JButton("복기");
 		
 		// 컴포넌트 바운딩 
-		roomNameLabel.setBounds(95, 14, 50, 20);
-		roomNameInput.setBounds(145, 14, 200, 20);
+		roomNameLabel.setBounds(115, 14, 50, 20);
+		roomNameInput.setBounds(165, 14, 180, 20);
 		searchButton.setBounds(350, 14, 50, 20);
 		refreshButton.setBounds(5, 10, 70, 30);
 		makeroomButton.setBounds(470, 10, 75, 30);
 		ratingButton.setBounds(402, 10, 75, 30);
 		roomScrollPane.setBounds(10, 50, 530, 310);
+		replayButton.setBounds(80, 10, 30, 30);
 		
 		// 이벤트 처리 
 		refreshButton.addActionListener(new RefreshLobby(this));
@@ -120,6 +141,7 @@ public class LobbyWindow extends JFrame
 		roomNameInput.addKeyListener(new SearchRoom(this));		
 		ratingButton.addActionListener(new ShowRating(this));
 		roomTable.addMouseListener(new JoinGame(this));
+		replayButton.addActionListener(new Replay(this));
 		
 		// 컴포넌트 add 
 		add(roomNameLabel);
@@ -129,6 +151,7 @@ public class LobbyWindow extends JFrame
 		add(makeroomButton);
 		add(ratingButton);
 		add(roomScrollPane);
+		add(replayButton);
 		
 		
 		// 창 생성시 visible 여부 
@@ -178,6 +201,24 @@ public class LobbyWindow extends JFrame
         String[][] filteredArray = new String[filteredList.size()][];
         filteredArray = filteredList.toArray(filteredArray);
         return filteredArray;
+    }
+    
+    class Replay implements ActionListener
+    {
+    	LobbyWindow lbw = null;
+    	Replay(LobbyWindow lbw) {this.lbw = lbw;}
+
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			if (lbw.picChooser.showOpenDialog(null) == 0)
+			{
+				lbw.replayWindow.initRepalyMode(lbw.picChooser.getSelectedFile().getAbsolutePath());
+				lbw.chatWindow.setVisible(false);
+				lbw.setVisible(false);
+			}
+		}
+    	
     }
 	
     class JoinGame extends MouseAdapter

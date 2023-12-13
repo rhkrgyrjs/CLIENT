@@ -32,6 +32,7 @@ public class Start
 		RatingWindow ratingWindow = RatingWindow.getInstance();
 		SpectWindow spectWindow = SpectWindow.getInstance();
 		EmojiSelectWindow emojiSelectWindow = EmojiSelectWindow.getInstance();
+		ReplayWindow replayWindow = ReplayWindow.getInstance();
 		
 		// 창 전환 의존성 설정 
 		loginWindow.setLobbyWindow(lobbyWindow);
@@ -56,6 +57,7 @@ public class Start
 		lobbyWindow.setUserInfoWindow(userInfoWindow);
 		lobbyWindow.setRatingWindow(ratingWindow);
 		lobbyWindow.setSpectWindow(spectWindow);
+		lobbyWindow.setReplayWindow(replayWindow);
 		
 		chatWindow.setGameBoardWindow(gameBoardWindow);
 		chatWindow.setSpectWindow(spectWindow);
@@ -70,6 +72,10 @@ public class Start
 		
 		spectWindow.setLobbyWindow(lobbyWindow);
 		spectWindow.setChatWindow(chatWindow);
+		
+		
+		replayWindow.setLobbyWindow(lobbyWindow);
+		replayWindow.setChatWindow(chatWindow);
 	}
 
 }
