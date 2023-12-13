@@ -340,6 +340,7 @@ public class ChatWindow extends JFrame
 								cw.doc.insertString(doc.getLength(), "\n", cw.right);
 								cw.doc.insertString(doc.getLength(), "\n", cw.right);
 					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
+					            cw.chatArea.setCaretPosition(cw.chatArea.getDocument().getLength());
 								} catch (BadLocationException e) {}
 								
 							}
@@ -381,6 +382,7 @@ public class ChatWindow extends JFrame
 								cw.doc.insertString(doc.getLength(), "\n", cw.right);
 								cw.doc.insertString(doc.getLength(), "\n", cw.right);
 					            cw.doc.setParagraphAttributes(doc.getLength(), 1, cw.right, false);
+					            cw.chatArea.setCaretPosition(cw.chatArea.getDocument().getLength());
 								} catch (BadLocationException e) {}
 								
 							}
