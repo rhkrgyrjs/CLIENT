@@ -1,5 +1,7 @@
 package windows;
 
+import logging.ArrayListSave;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -414,6 +416,7 @@ public class ChatWindow extends JFrame
 						ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
 						SendObject.withSocket(Start.connSocket, getInRoom);
 						cw.gameBoardWindow.setVisible(false);
+						ArrayListSave.saveArrayListToFile(cw.gameBoardWindow.GAMELOG);
 						cw.gameBoardWindow.clear();
 						cw.gameBoardWindow.lobbyWindow.setVisible(true);
 						cw.gameBoardWindow.chatWindow.setVisible(true);

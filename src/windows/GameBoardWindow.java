@@ -13,6 +13,7 @@ import image.PicResize;
 import login.LoginRequest;
 import socket.SendObject;
 import swing.ShowMessage;
+import sound.PlayEffectSound;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -22,6 +23,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class GameBoardWindow extends JFrame
@@ -42,6 +44,9 @@ public class GameBoardWindow extends JFrame
 	// 배경, 종 이미지 
 	ImageIcon bgImg = null;
 	ImageIcon bellImg = null;
+	
+	// 게임 로그 남기기
+	public ArrayList<GameBoardInfoForm> GAMELOG = null;
 	
 	// 카드 이미지들 
 	ImageIcon cardBackImg = null;
@@ -109,6 +114,7 @@ public class GameBoardWindow extends JFrame
 	
 	public void clear()
 	{
+		this.GAMELOG.clear();
 		this.onGame = false;
 		gameLog.setText("");
         gameLog.append("\n");
@@ -150,6 +156,8 @@ public class GameBoardWindow extends JFrame
 		setSize(1200, 800);
 		setLayout(null);
 		setLocationRelativeTo(null);
+		
+		this.GAMELOG = new ArrayList<GameBoardInfoForm>();
 		
 		// 배경 이미지 로드/패널 처리 
 		bgImg = new ImageIcon("img/background.png");
@@ -344,6 +352,36 @@ public class GameBoardWindow extends JFrame
 	
 	public void updateWindow(ChatForm data)
 	{
+		// command가 null이면 무시하고, 종 울림이면 종소리 내고, 카드 펼침이면 카드 펼치는 소리 내기. 
+		// 게임 로그를 기록하고, 끝나면 관전 파일로 저장하기. 
+		if (GAMELOG.size() == 0)
+		{
+			GAMELOG.add(data.getBoardInfo());
+			// 테스트 : 
+			System.out.println("호스트의 덱 수 : " + data.getBoardInfo().getHostDeckCount());
+			System.out.println("게스트의 덱 수 : " + data.getBoardInfo().getGuestDeckCount());
+		}
+		else
+		{
+			if ((GAMELOG.get(GAMELOG.size()-1).getGuestDeckCount() != data.getBoardInfo().getGuestDeckCount()) || (GAMELOG.get(GAMELOG.size()-1).getHostDeckCount() != data.getBoardInfo().getHostDeckCount()))
+			{
+				GAMELOG.add(data.getBoardInfo());
+				// 테스트 : 
+				System.out.println("호스트의 덱 수 : " + data.getBoardInfo().getHostDeckCount());
+				System.out.println("게스트의 덱 수 : " + data.getBoardInfo().getGuestDeckCount());
+			}
+		}
+		if (data.getBoardInfo().getCommand() != null)
+		{
+			if (data.getBoardInfo().getCommand().equals("ring"))
+			{
+				PlayEffectSound.playRing();
+			}
+			else if (data.getBoardInfo().getCommand().equals("flip"))
+			{
+				PlayEffectSound.playFlip();
+			}
+		}
 		this.gameLog.append(data.getMsg());
 		this.gameLog.append("\n");
 		try {this.gameLog.setCaretPosition(this.gameLog.getDocument().getLength());}
