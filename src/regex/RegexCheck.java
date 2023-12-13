@@ -62,4 +62,31 @@ public class RegexCheck
 			return false;
 		}
 	}
+	
+    public static int checkPasswordStrength(String password) {
+        int strength = 0;
+
+        // 길이가 8글자 이상인지 확인
+        
+        if (password.length() > 20)
+        {
+        	return 0;
+        }
+        
+        if (password.length() >= 8) {
+            strength++;
+        }
+
+        // 특수문자 포함 여부 확인
+        if (password.matches(".*[@$!%*#?&].*")) {
+            strength++;
+        }
+
+        // 숫자 포함 여부 확인
+        if (password.matches(".*\\d.*")) {
+            strength++;
+        }
+
+        return strength;
+    }
 }

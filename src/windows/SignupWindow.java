@@ -83,6 +83,7 @@ public class SignupWindow extends JFrame
 	
 	public void clear()
 	{	
+		this.pwInput.setForeground(Color.black);
 		this.idDupChecked = false;
 		this.nickNameChecked = false;
 		this.passwordChecked = false;
@@ -392,6 +393,24 @@ public class SignupWindow extends JFrame
 		
 		private void passwordRegexCheck(String pw)
 		{
+			switch(RegexCheck.checkPasswordStrength(pw))
+			{
+				case 0:
+					sw.pwInput.setForeground(Color.gray);
+				break;
+				case 1:
+					sw.pwInput.setForeground(Color.red);
+				break;
+				
+				case 2:
+					sw.pwInput.setForeground(Color.yellow);
+				break;
+				
+				case 3:
+					if (RegexCheck.isPw(pw))
+							sw.pwInput.setForeground(Color.green);
+				break;
+			}
 			if (RegexCheck.isPw(pw))
 			{
 				// 비번 사용가능 
