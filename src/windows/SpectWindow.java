@@ -16,6 +16,7 @@ import image.Blob;
 import image.PicResize;
 import login.LoginRequest;
 import socket.SendObject;
+import sound.PlayEffectSound;
 import swing.ShowMessage;
 import windows.GameBoardWindow.Close;
 import windows.GameBoardWindow.FlipNRing;
@@ -365,6 +366,17 @@ public class SpectWindow extends JFrame
 	
 	public void updateWindow(ChatForm data)
 	{
+		if (data.getBoardInfo().getCommand() != null)
+		{
+			if (data.getBoardInfo().getCommand().equals("ring"))
+			{
+				PlayEffectSound.playRing();
+			}
+			else if (data.getBoardInfo().getCommand().equals("flip"))
+			{
+				PlayEffectSound.playFlip();
+			}
+		}
 		this.gameLog.append(data.getMsg());
 		this.gameLog.append("\n");
 		try {this.gameLog.setCaretPosition(this.gameLog.getDocument().getLength());}
