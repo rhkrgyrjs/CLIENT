@@ -358,8 +358,6 @@ public class GameBoardWindow extends JFrame
 		{
 			GAMELOG.add(data.getBoardInfo());
 			// 테스트 : 
-			System.out.println("호스트의 덱 수 : " + data.getBoardInfo().getHostDeckCount());
-			System.out.println("게스트의 덱 수 : " + data.getBoardInfo().getGuestDeckCount());
 		}
 		else
 		{
@@ -367,8 +365,6 @@ public class GameBoardWindow extends JFrame
 			{
 				GAMELOG.add(data.getBoardInfo());
 				// 테스트 : 
-				System.out.println("호스트의 덱 수 : " + data.getBoardInfo().getHostDeckCount());
-				System.out.println("게스트의 덱 수 : " + data.getBoardInfo().getGuestDeckCount());
 			}
 		}
 		if (data.getBoardInfo().getCommand() != null)

@@ -394,7 +394,6 @@ public class ChatWindow extends JFrame
 						cw.gameBoardWindow.updateWindow(received);
 						
 						// 테스트 
-						System.out.println("서버의 메시지 : " + received.getMsg());
 						
 					}
 					else if (received.getReqType() == 3)
@@ -427,12 +426,10 @@ public class ChatWindow extends JFrame
 					{
 						// 관전자가 받는 화면의 메시지 
 						cw.spectWindow.updateWindow(received);
-						System.out.println("서버의 메시지 : " + received.getMsg());
 					}
 					else if (received.getReqType() == 6)
 					{
 						// 관전자가 게임 끝났을때 받는 메시지 
-						ShowMessage.information("게임 끝", received.getMsg());
 						Start.roomId = "@ServerMain";
 						ChatForm getInRoom = new ChatForm(3, Start.roomId, Start.myId, Start.myNickname, "");
 						SendObject.withSocket(Start.connSocket, getInRoom);
